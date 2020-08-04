@@ -5,28 +5,30 @@ Vue.config.devtools = true;
   let vm = new Vue({
     el: "#app",
     data: {
-    //   formModal: false,
+      formModal: true,
       newMessage: "",
-      messages: [],
+	  messages: [],
+	  thread_open: false,
+	  thread_messages: {},
     },
-    // mounted() {
-    //   axios
-    //     .get(
-    //       "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf/test2/messages"
-    //     )
-    //     .then(
-    //       (response) => {
-    //         for (let i = 0; i < response.data.messages.length; i++) {
-    //           this.messages.push(response.data.messages[i].content);
-    //         }
-    //         console.log(messages[0]);
-    //         // this.messages.push(response.data.messages)
-    //       },
-    //       (error) => {
-    //         console.log(error);
-    //       }
-    //     );
-    // },
+    mounted() {
+      axios
+        .get(
+          "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf/test2/messages"
+        )
+        .then(
+          (response) => {
+            for (let i = 0; i < response.data.messages.length; i++) {
+              this.messages.push(response.data.messages[i].content);
+            }
+            console.log(messages[0]);
+            // this.messages.push(response.data.messages)
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+    },
     methods: {
       //   fetchTasks: function () {
       //     axios
@@ -52,22 +54,24 @@ Vue.config.devtools = true;
       openSetting: function (index) {
         this.messages[index].setting = true;
       },
-    //   closeFormModal: function () {
-    //     this.formModal = false;
-    //   },
       closeSettingModal: function () {
         this.messages[index].setting = false;
       },
       addMessage: function () {
         let item = {
-          text: this.newMessage,
+		  text: this.newMessage,
+		  from: "me",
           good: 0,
-          setting: false,
+		  setting: false,
+		  child: [],
         };
         this.messages.push(item);
         this.newMessage = "";
-        // this.formModal = false;
-      },
+	  },
+	  openThread: function(index) {
+		  this.thread_messages = this.messages[index];
+		  this.thread_open = true;
+	  },
       addGood: function (index) {
         this.messages[index].good++;
       },
