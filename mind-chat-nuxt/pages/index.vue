@@ -122,6 +122,7 @@
 </template>
 
 <script>
+import Cookies from 'universal-cookie';
 
 export default {
   name: "Chat",
@@ -129,7 +130,7 @@ export default {
     return {
       formModal: false,
       newMessage: "",
-      messages: []
+      // messages: []
     };
   },
   async asyncData({ $axios }) {
@@ -138,16 +139,6 @@ export default {
     // リクエスト（Get）
     const response = await $axios.$get(url)
       .catch(
-      //   response => {
-      //     console.log(response.result[0].content);
-      //     // for (let i = 0; i < response.result.length; i++) {
-      //     //   messages.push(response.result[i].content);
-      //     // }
-      //     // messages.push(response.data.messages)
-      //   },
-      //   error => {
-      //     console.log(error);
-      //   }
         error => {
           console.log(error);
         }
@@ -170,19 +161,37 @@ export default {
     closeSettingModal: function() {
       this.messages[index].setting = false;
     },
-    addMessage: function() {
+
+    async addMessage() {
       let item = {
-        text: this.newMessage,
-        good: 0,
-        setting: false
+        to: "hogesan",
+        content: this.newMessage
       };
-      this.messages.push(item);
+
+// key をセット
+      const key = "";
+      const url = "/test2/messages"
+      const cookies = new Cookies();
+      cookies.set('key', key);
+
+      this.$axios.defaults.withCredentials = true;
+      const response = this.$axios
+        .$post(url, item
+        )
+        .then(response => {
+          alert("pass")
+        })
+        .catch(error => {
+          console.log(response);
+          console.log(item)
+        })
+
       this.newMessage = "";
       this.formModal = false;
     },
-    addGood: function(index) {
-      this.messages[index].good++;
-    },
+    // addGood: function(index) {
+    //   this.messages[index].good++;
+    // },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
     }
