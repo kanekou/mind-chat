@@ -169,12 +169,11 @@ export default {
       };
 
 // key をセット
-      const key = "";
+      const key= process.env.KEY;
       const url = "/test2/messages"
       const cookies = new Cookies();
       cookies.set('key', key);
 
-      this.$axios.defaults.withCredentials = true;
       const response = this.$axios
         .$post(url, item
         )
