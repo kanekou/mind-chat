@@ -135,7 +135,7 @@ export default {
   },
   async asyncData({ $axios }) {
     // 取得先のURL
-    const url = "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf/test2/messages"
+    const url = "/test2/messages"
     // リクエスト（Get）
     const response = await $axios.$get(url)
       .catch(
