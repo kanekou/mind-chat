@@ -47,7 +47,15 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: ["@nuxtjs/axios"],
+  modules: ["@nuxtjs/axios", "@nuxtjs/dotenv"],
+  axios: {
+    // axios でproxy が使えるようにする
+    proxy: true
+  },
+  proxy: {
+    // ターゲット先のURLを指定
+    "/test2": "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf"
+  },
   /*
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/

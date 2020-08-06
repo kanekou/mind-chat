@@ -3,17 +3,15 @@
     <header>
       <h1>Message</h1>
     </header>
-    <h1>{{ posts }}</h1>
-    <!-- <div v-if="True"> -->
-    <div>
-      <section class="card" v-for="(message, index) in messages">
+
+    <div v-if=messages>
+      <section class="card" v-for="message in messages">
         <div class="text">
-          <!-- <p>{{ messages.text }}</p> -->
-          <p>{{ posts }}</p>
+          <p>{{ message.content }}</p>
         </div>
         <div class="option">
           <span class="setting" @click="openSetting(index)">…</span>
-          <div class="reaction" @click="addGood(index)">
+          <!-- <div class="reaction" @click="addGood(index)">
             <svg
               version="1.1"
               id="_x32_"
@@ -44,7 +42,7 @@
             <span v-bind:class="{ turnRed: messages[index].good }">{{
               message.good
             }}</span>
-          </div>
+          </div> -->
         </div>
         <div
           class="settingModal"
@@ -55,9 +53,9 @@
         </div>
       </section>
     </div>
-    <!-- <div v-else>
+    <div v-else>
       <p class="noFire">NO Message</p>
-    </div> -->
+    </div>
     <button class="new" @click="openFormModal">
       <svg
         version="1.1"
@@ -124,59 +122,31 @@
 </template>
 
 <script>
+import Cookies from 'universal-cookie';
 
 export default {
   name: "Chat",
-  // data: function() {
   data() {
     return {
       formModal: false,
       newMessage: "",
-      messages: []
+      // messages: []
     };
   },
   async asyncData({ $axios }) {
     // 取得先のURL
-    const url = "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf/test2/messages"
+    const url = "/test2/messages"
     // リクエスト（Get）
     const response = await $axios.$get(url)
-      // .then(
-      //   response => {
-      //     console.log(response.result[0].content);
-      //     // for (let i = 0; i < response.result.length; i++) {
-      //     //   messages.push(response.result[i].content);
-      //     // }
-      //     // messages.push(response.data.messages)
-      //   },
-      //   error => {
-      //     console.log(error);
-      //   }
-      // );
-    // 配列で返ってくるのでJSONにして返却
-    return {
-      posts: response
-      // messages: response
-    };
+      .catch(
+        error => {
+          console.log(error);
+        }
+      );
+      console.log(response);
+      return { messages: response.result }
   },
   mounted() {
-    // axios
-    //   .get(
-    //     '/uiuxchat3287bivsgfbivf/test2/messages'
-    // 		// "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf/test2/messages"
-    // 		// 'https://api.coindesk.com/v1/bpi/currentprice.json'
-    //   )
-    //   .then(
-    //     response => {
-    //       console.log(response);
-    //       // for (let i = 0; i < response.data.messages.length; i++) {
-    //       //   this.messages.push(response.data.messages[i].content);
-    //       // }
-    //       // this.messages.push(response.data.messages)
-    //     },
-    //     error => {
-    //       console.log(error);
-    //     }
-    //   );
   },
   methods: {
     openFormModal: function() {
@@ -191,19 +161,36 @@ export default {
     closeSettingModal: function() {
       this.messages[index].setting = false;
     },
-    addMessage: function() {
+
+    async addMessage() {
       let item = {
-        text: this.newMessage,
-        good: 0,
-        setting: false
+        to: "hogesan",
+        content: this.newMessage
       };
-      this.messages.push(item);
+
+// key をセット
+      const key= process.env.KEY;
+      const url = "/test2/messages"
+      const cookies = new Cookies();
+      cookies.set('key', key);
+
+      const response = this.$axios
+        .$post(url, item
+        )
+        .then(response => {
+          alert("pass")
+        })
+        .catch(error => {
+          console.log(response);
+          console.log(item)
+        })
+
       this.newMessage = "";
       this.formModal = false;
     },
-    addGood: function(index) {
-      this.messages[index].good++;
-    },
+    // addGood: function(index) {
+    //   this.messages[index].good++;
+    // },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
     }
