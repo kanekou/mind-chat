@@ -9,7 +9,7 @@ Vue.config.devtools = true;
       newMessage: "",
 	  messages: [],
 	  thread_open: false,
-	  thread_messages: {},
+	  thread_messages: null,
     },
     mounted() {
       axios
