@@ -158,9 +158,6 @@ export default {
       const response = this.$axios
         .$post(url, item
         )
-        .then(response => {
-          alert("pass")
-        })
         .catch(error => {
           console.log(response);
           console.log(item)
