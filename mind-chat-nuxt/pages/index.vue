@@ -200,7 +200,6 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Kaushan+Script&display=swap");
-
 html,
 body,
 h1,
