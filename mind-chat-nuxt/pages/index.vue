@@ -128,9 +128,10 @@ export default {
   name: "Chat",
   data() {
     return {
-      formModal: false,
+      formModal: true,
       newMessage: "",
-      // messages: []
+      thread_open: false,
+      thread_messages: null,
     };
   },
   async asyncData({ $axios }) {
@@ -155,8 +156,9 @@ export default {
     openSetting: function(index) {
       this.messages[index].setting = true;
     },
-    closeFormModal: function() {
-      this.formModal = false;
+    // TODO: 消す
+    closeFormModal: function () {
+        this.formModal = false;
     },
     closeSettingModal: function() {
       this.messages[index].setting = false;
@@ -164,8 +166,11 @@ export default {
 
     async addMessage() {
       let item = {
-        to: "hogesan",
+        to: "hogesan",// 一旦
+        from: "me",
         content: this.newMessage
+      // 	 setting: false,
+      // child: [],
       };
 
 // key をセット
@@ -187,6 +192,10 @@ export default {
 
       this.newMessage = "";
       this.formModal = false;
+    },
+    openThread: function(index) {
+      this.thread_messages = this.messages[index];
+      this.thread_open = true;
     },
     // addGood: function(index) {
     //   this.messages[index].good++;
