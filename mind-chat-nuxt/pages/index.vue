@@ -1,16 +1,20 @@
 <template>
 <div class="app-layout">
   <div class="side-bar">
-    test
+    <div class="user-name-input-layout">
+      <div class="user-name-title" > あなたのユーザ名 </div> 
+      <textarea cols="10" rows="1" class="user-name-input" v-model="from_name"></textarea>
+    </div>
+    <div class="channel"></div> 
   </div>
   <div id="Chat" class="main-contents" v-bind:class="{threadOpendisplay: thread_open}">
     <div class="two-container" v-bind:class="{threadOpen: thread_open}">
-      <div class="chats-layout">
+      <div ref="chats" class="chats-layout">
         <div class="containier">
           <div class="chat_container">
             <div v-if="messages">
-              <section class="card" v-for="(message, index) in messages">
-                <div class="thumbnail" v-if="message.parent==-1">
+              <section class="card" v-for="(message, index) in messages"  v-if="message.parent==-1">
+                <div class="thumbnail">
                   <img src="">
                 </div>
                 <div class="message-container">
@@ -18,7 +22,7 @@
                     <div class="user-name">
                       {{ message.from }}
                       <span @click="openThread(index)">→</span>
-                      <span @click="deleteMessage(index)">×</span>
+                      <!-- <span @click="deleteMessage(index)">×</span> -->
                     </div>
                   </div>
                   <div class="text">
@@ -55,6 +59,10 @@
     </div>
     <div class="thread-container" v-if="thread_open">
       <div class="chats-layout">
+        <div class="thread-header">
+          <div class="thread-title">Thread</div>
+          <span class="thread-exit" @click="closeThread(index)">×</span>
+        </div>
         <div class="containier">
           <div class="chat_container">
             <section class="card">
@@ -77,14 +85,34 @@
                 </div>
               </div>
             </section>
+            <section class="card" v-for="(message2, index) in messages" v-if="message2.parent==thread_messages.id">
+                <div class="thumbnail" v-if="message2.parent==thread_messages.id">
+                  <img src="">
+                </div>
+                <div class="message-container">
+                  <div class="user-name-layout">
+                    <div class="user-name">
+                      {{ message2.from }}
+                      <span @click="openThread(index)">→</span>
+                      <!-- <span @click="deleteMessage(index)">×</span> -->
+                    </div>
+                  </div>
+                  <div class="text">
+                    <p>{{ message2.content }}</p>
+                  </div>
+                  <div class="option" v-if="message2.child">
+                    <span class="setting" @click="openThread(index)">スレッドを表示する</span>
+                  </div>
+                </div>
+              </section>
           </div>
         </div>
       </div>
       <div class="input-layout">
         <div class="new-form">
           <div class="new-form-container">
-            <form @submit.prevent="addMessage">
-              <textarea v-model="newMessage"></textarea>
+            <form @submit.prevent="addThread">
+              <textarea v-model="newThread"></textarea>
               <button type="submit">
                 <svg width="100%" height="100%" viewBox="0 0 16 16" class="bi bi-caret-right-fill"
                   fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -112,6 +140,8 @@ export default {
       newMessage: "",
       thread_open: false,
       thread_messages: null,
+      newThread: "",
+      from_name: "me",
     };
   },
   async asyncData({ $axios }) {
@@ -124,12 +154,44 @@ export default {
           console.log(error);
         }
       );
-      console.log(response);
-      return { messages: response.result }
+      return {
+        messages: response.result
+      }
   },
   mounted() {
+    this.$nextTick(function () {
+      let ref = this.$refs.chats;
+      this.scrollToEnd(ref);
+    })
+  },
+  created(){
+    setInterval(() => {
+      this.getNewMessage();
+    }, 10000) // とりあえず10秒
+  },
+  updated() {
+    // TODO: スレッドのスクロール操作
   },
   methods: {
+    async getNewMessage(){
+      const url = "/test2/messages"
+      let reqId = this.messages.slice(-1)[0].id+1;
+      const response = this.$axios.$get(url+'/'+reqId)
+        .then(
+          response => {
+            this.messages.push(response.result);
+            console.log("pushed messages!")
+        })
+        .catch(
+          error => {}
+        );
+    },
+    scrollToEnd(dom) {
+        const chatLog = dom;
+        console.log('対象のDOM', chatLog)
+        if (!chatLog) return
+        chatLog.scrollTop = chatLog.scrollHeight
+    },
     openFormModal: function() {
       this.formModal = true;
     },
@@ -143,11 +205,10 @@ export default {
     async addMessage() {
       let item = {
         to: "hogesan",// 一旦
-        from: "me",
+        from: this.from_name,
         content: this.newMessage
       };
 
-// key をセット
       const key= process.env.KEY;
       const url = "/test2/messages"
       const cookies = new Cookies();
@@ -155,7 +216,9 @@ export default {
 
       const response = this.$axios
         .$post(url, item
-        )
+        ).then(res => {
+          location.reload();
+        })
         .catch(error => {
           console.log(response);
           console.log(item)
@@ -164,9 +227,38 @@ export default {
       this.newMessage = "";
       this.formModal = false;
     },
+    async addThread() {
+      let item = {
+        to: "hogesan",// 一旦
+        from: this.from_name,
+        content: this.newThread,
+        parent: this.thread_messages.id
+      };
+
+      const key= process.env.KEY;
+      const url = "/test2/messages"
+      const cookies = new Cookies();
+      cookies.set('key', key);
+
+      const response = this.$axios
+        .$post(url, item
+        ).then(res => {
+          location.reload();
+        })
+        .catch(error => {
+          console.log(response);
+          console.log(item)
+        })
+
+      this.newThread = "";
+      this.formModal = false;
+    },
     openThread: function(index) {
       this.thread_messages = this.messages[index];
       this.thread_open = true;
+    },
+    closeThread: function(index) {
+      this.thread_open = false;
     },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
@@ -180,14 +272,14 @@ export default {
 
 /* ここにテーマとなるカラーを変更する */
 :root {
-	--main-bg-color: white;
-	--main-chara-color: #FF3939;
-	--chat-bg-color: white;
-	--chat-border-color: cyan;
+  --main-bg-color: white;
+  --main-chara-color: #FF3939;
+  --chat-bg-color: white;
+  --chat-border-color: cyan;
   }
 
 div{
-	display: block;
+  display: block;
 }
 *, :after, :before {
     box-sizing: border-box;
@@ -195,48 +287,48 @@ div{
 }
 
 html,body{
-	height: 100%;
-	margin: 0;
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
+  height: 100%;
+  margin: 0;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 html{
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 .app-layout{
-	display: flex;
+  display: flex;
 }
 .side-bar{
-	width: 300px;
+  width: 300px;
     background: #4a4141;
     height: 100vh;
     padding: 20px;
 }
 
 .main-contents{
-	width: 100%;
-	height: 100vh;
-	background: #f1f1f1;
+  width: 100%;
+  height: 100vh;
+  background: #f1f1f1;
 }
 h1,h2{
-	margin: 0;
-	/* width: 100%; */
-	height: 80px;
-	background-color: #2E2E2E;
-	border-bottom: solid 2px #707070;
+  margin: 0;
+  /* width: 100%; */
+  height: 80px;
+  background-color: #2E2E2E;
+  border-bottom: solid 2px #707070;
 }
 @media only screen and (max-width: 750px) {
-	h1,h2,p{
-		margin: 0;
-	}
-	h1,h2{
-		background-color: #2E2E2E;
-		border-bottom: solid 2px #707070;
-	}
+  h1,h2,p{
+    margin: 0;
+  }
+  h1,h2{
+    background-color: #2E2E2E;
+    border-bottom: solid 2px #707070;
+  }
 }
 
 html,body{
-	background-color: var(--main-bg-color);
+  background-color: var(--main-bg-color);
 }
 header{
 	z-index: 0;
@@ -248,19 +340,19 @@ header{
 }
 
 header h1{
-	line-height: 70px;
-	text-align: center;
+  line-height: 70px;
+  text-align: center;
 }
 
 .main-contents .two-container{
-	height: 100%;
-	padding: 20px;
+  height: 100%;
+  padding: 20px;
 }
 
 .main-contents .chats-layout{
-	overflow: scroll;
-	overflow-x: hidden;
-	overflow-y: auto;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
     height: 90%;
 }
 
@@ -269,108 +361,119 @@ header h1{
 }
 
 .container{
-	height: 100%;
-	display: block;
+  height: 100%;
+  display: block;
 }
 .chat_container{
-	/* margin-right: 20%; */
+  /* margin-right: 20%; */
 }
 @media only screen and (max-width: 750px) {
-	.chat_container{
-		margin: 0;
-	}
+  .chat_container{
+    margin: 0;
+  }
 }
-.noFire{
-	margin-top: 100px;
-	text-align: center;
-	color: var(--main-chara-color);
+
+.thread-header{
+  height: 50px;
+  border-bottom: 1px solid gray;
+  display: flex;
 }
+
+.thread-title{
+  margin-left: 10px;
+  font-size: 20px;
+}
+.thread-exit{
+  margin-left: 50%;
+  font-size: 20px;
+}
+
 .card{
 	display: flex;
   padding: 8px;
 }
 .thumbnail{
-	margin-right: 16px;
+  margin-right: 16px;
 }
 .thumbnail img {
     width: 50px;
     height: 50px;
-	border-radius: 10px;
+  border-radius: 10px;
 }
 .user-name{
-	font-weight: 700;
+  font-weight: 700;
 }
 .card .text{
-	padding-bottom: 15px;
+  padding-bottom: 15px;
 }
 .card .text p{
-	color: brack;
-	font-size: 18px;
+  color: brack;
+  font-size: 18px;
 }
 .card .option{
-	height: 30px;
-	padding-top: 15px;
-	border-top: solid 1px #707070;
-	position: relative;
+  height: 30px;
+  padding-top: 15px;
+  border-top: solid 1px #707070;
+  position: relative;
 }
 .card .option .setting{
-	height: 30px;
-	color: brack;
-	position: absolute;
-	left: 0;
+  height: 30px;
+  color: brack;
+  position: absolute;
+  left: 0;
 }
 .card .option .reaction{
-	width: 36px;
-	position: absolute;
-	left: calc(50% - 13px);
-	display: flex;
-	align-items: baseline;
+  width: 36px;
+  position: absolute;
+  left: calc(50% - 13px);
+  display: flex;
+  align-items: baseline;
 }
 .card .option .reaction svg{
-	width: 22px;
+  width: 22px;
 }
 .card .option .reaction span{
-	font-size: 14px;
-	color: brack;
+  font-size: 14px;
+  color: brack;
 }
 .turnRed{
-	color: var(--main-chara-color)!important;
+  color: var(--main-chara-color)!important;
 }
 .fire {
-	fill: #fff;
+  fill: #fff;
 }
 .card .fire {
-	fill: brack;
+  fill: brack;
 }
 .fire:hover{
-	fill: var(--main-chara-color);
+  fill: var(--main-chara-color);
 }
 .burn{
-	fill: var(--main-chara-color);
+  fill: var(--main-chara-color);
 }
 
 .new{
-	width: 70px;
-	height: 70px;
-	border: solid 3px #fff;
-	box-shadow: 0px 2px 5px rgba(255,255,255,0.8);
-	position: fixed;
-	bottom: 20px;
-	right: 20px;
+  width: 70px;
+  height: 70px;
+  border: solid 3px #fff;
+  box-shadow: 0px 2px 5px rgba(255,255,255,0.8);
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
 }
 .new:hover{
-	border: solid 3px var(--main-chara-color);
+  border: solid 3px var(--main-chara-color);
 }
 .new-form{
-	height: 100%;
+  height: 100%;
 }
 
 .new-form-container{
-	padding: 10px;
-	height: 100%;
+  padding: 10px;
+  height: 100%;
 }
 .new-form form{
-	height: 100%;
+  height: 100%;
 }
 
 .new-form form textarea{
@@ -384,48 +487,64 @@ header h1{
 	position: fixed;
 }
 .modalOpen{
-	opacity: 1;
-	display: block;
-	transition-duration: 5s;
+  opacity: 1;
+  display: block;
+  transition-duration: 5s;
 }
 
 .settingModal{
-	width: 100vw;
-	padding: 20px;
-	background-color: #2E2E2E;
-	z-index: 10;
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	display: none;
+  width: 100vw;
+  padding: 20px;
+  background-color: #2E2E2E;
+  z-index: 10;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: none;
 }
 
 .settingModal span{
-	color: #fff;
-	font-size: 30px;
-	position: fixed;
-	bottom: 60px;
-	left: 10px;
+  color: #fff;
+  font-size: 30px;
+  position: fixed;
+  bottom: 60px;
+  left: 10px;
 }
 .settingModal p{
-	color: #fff;
+  color: #fff;
 }
 .settingOpen{
-	display: block;
+  display: block;
 }
 
 .threadOpendisplay{
-	display: flex;
+  display: flex;
 }
 
 .threadOpen{
-	width: 45vw;;
-	border-right: 1px solid gray;
+  width: 45vw;;
+  border-right: 1px solid gray;
 }
 
 .thread-container{
 	width: 35vw;
 	padding: 20px;
+}
+
+.user-name-input-layout{
+  width: 100%;
+}
+
+.user-name-title{
+  color: white;
+  font-weight: 800;
+	font-family: 'Kaushan Script', cursive;
+  width: 100%;
+}
+
+.user-name-input{
+  width: 100%;
+  font-size: 16px;
 }
 
 </style>
