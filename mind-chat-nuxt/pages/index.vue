@@ -4,7 +4,7 @@
     test
   </div>
   <div id="Chat" class="main-contents" v-bind:class="{threadOpendisplay: thread_open}">
-    <div ref = "two" class="two-container" v-bind:class="{threadOpen: thread_open}">
+    <div class="two-container" v-bind:class="{threadOpen: thread_open}">
       <div ref="chats" class="chats-layout">
         <div class="containier">
           <div class="chat_container">
@@ -124,21 +124,21 @@ export default {
           console.log(error);
         }
       );
-      // console.log(response);
       return { messages: response.result }
-
-      // asyncData();
   },
   mounted() {
-    this.scrollToEnd();
+    let ref = this.$refs.chats;
+    this.scrollToEnd(ref);
   },
   created(){
   },
   updated() {
+    let dom = this.$refs.chats;
+    this.scrollToEnd(dom);
   },
   methods: {
-    scrollToEnd() {
-        const chatLog = this.$refs.chats;
+    scrollToEnd(dom) {
+        const chatLog = dom;
         console.log('対象のDOM', chatLog)
         if (!chatLog) return
         chatLog.scrollTop = chatLog.scrollHeight
@@ -186,9 +186,6 @@ export default {
       this.thread_messages = this.messages[index];
       this.thread_open = true;
     },
-    // addGood: function(index) {
-    //   this.messages[index].good++;
-    // },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
     }
