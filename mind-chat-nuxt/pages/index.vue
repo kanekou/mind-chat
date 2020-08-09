@@ -10,7 +10,7 @@
           <div class="chat_container">
             <div v-if="messages">
               <section class="card" v-for="(message, index) in messages">
-                <div class="thumbnail">
+                <div class="thumbnail" v-if="message.parent==-1">
                   <img src="">
                 </div>
                 <div class="message-container">
@@ -70,7 +70,7 @@
                   </div>
                 </div>
                 <div class="text">
-                  <p>{{ thread_messages.text }}</p>
+                  <p>{{ thread_messages.content }}</p>
                 </div>
                 <div class="option" v-if="thread_messages.child">
                   <span class="setting" @click="openThread(index)">スレッドを表示する</span>
@@ -145,8 +145,6 @@ export default {
         to: "hogesan",// 一旦
         from: "me",
         content: this.newMessage
-      // 	 setting: false,
-      // child: [],
       };
 
 // key をセット
@@ -170,9 +168,6 @@ export default {
       this.thread_messages = this.messages[index];
       this.thread_open = true;
     },
-    // addGood: function(index) {
-    //   this.messages[index].good++;
-    // },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
     }
@@ -250,9 +245,8 @@ header{
 	color: var(--main-chara-color);
 	font-weight: 800;
 	font-family: 'Kaushan Script', cursive;
-	/* background-color: #2E2E2E;
-	border-bottom: solid 2px #707070; */
 }
+
 header h1{
 	line-height: 70px;
 	text-align: center;
@@ -262,15 +256,16 @@ header h1{
 	height: 100%;
 	padding: 20px;
 }
+
 .main-contents .chats-layout{
 	overflow: scroll;
 	overflow-x: hidden;
 	overflow-y: auto;
     height: 90%;
 }
+
 .input-layout{
 	height: 10%;
-	/* position: absolute; d */
 }
 
 .container{
@@ -291,15 +286,8 @@ header h1{
 	color: var(--main-chara-color);
 }
 .card{
-	/* width: calc(100% - 40px);
-	margin: 30px auto 0;
-	padding: 25px 15px 15px;
-	box-sizing: border-box;
-	background-color: var(--chat-bg-color);
-	border: solid 1.5px var(--chat-border-color);
-	border-radius: 7px; */
 	display: flex;
-    padding: 8px;
+  padding: 8px;
 }
 .thumbnail{
 	margin-right: 16px;
@@ -388,17 +376,12 @@ header h1{
 .new-form form textarea{
 	width: 80%;
 	height: 100%;
-	/* padding: 15px; */
-	/* color: #fff; */
 	font-size: 18px;
-	/* background-color: #2e2e2e; */
 	box-sizing: border-box;
 }
 .new-form form button {
 	width: 70px;
 	position: fixed;
-	/* top: 350px; */
-	/* left: calc((100% - 70px)/2); */
 }
 .modalOpen{
 	opacity: 1;
@@ -443,7 +426,6 @@ header h1{
 .thread-container{
 	width: 35vw;
 	padding: 20px;
-	/* display: flex; */
 }
 
 </style>
