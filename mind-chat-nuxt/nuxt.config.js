@@ -34,6 +34,7 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
+  // plugins: ["~/plugins/SetInterval"],
   plugins: [],
   /*
    ** Auto import components

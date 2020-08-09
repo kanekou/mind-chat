@@ -124,7 +124,9 @@ export default {
           console.log(error);
         }
       );
-      return { messages: response.result }
+      return {
+        messages: response.result
+      }
   },
   mounted() {
     this.$nextTick(function () {
@@ -133,11 +135,27 @@ export default {
     })
   },
   created(){
+    setInterval(() => {
+      this.getNewMessage();
+    }, 10000) // とりあえず10秒
   },
   updated() {
     // TODO: スレッドのスクロール操作
   },
   methods: {
+    async getNewMessage(){
+      const url = "/test2/messages"
+      let reqId = this.messages.slice(-1)[0].id+1;
+      const response = this.$axios.$get(url+'/'+reqId)
+        .then(
+          response => {
+            this.messages.push(response.result);
+            console.log("pushed messages!", this.messages.content)
+        })
+        .catch(
+          error => {}
+        );
+    },
     scrollToEnd(dom) {
         const chatLog = dom;
         console.log('対象のDOM', chatLog)
@@ -172,7 +190,6 @@ export default {
         .$post(url, item
         ).then(res => {
           location.reload();
-          // asyncData();
         })
         .catch(error => {
           console.log(response);
