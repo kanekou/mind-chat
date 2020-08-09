@@ -150,7 +150,7 @@ export default {
         .then(
           response => {
             this.messages.push(response.result);
-            console.log("pushed messages!", this.messages.content)
+            console.log("pushed messages!")
         })
         .catch(
           error => {}
