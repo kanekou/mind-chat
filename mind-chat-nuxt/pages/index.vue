@@ -127,14 +127,15 @@ export default {
       return { messages: response.result }
   },
   mounted() {
-    let ref = this.$refs.chats;
-    this.scrollToEnd(ref);
+    this.$nextTick(function () {
+      let ref = this.$refs.chats;
+      this.scrollToEnd(ref);
+    })
   },
   created(){
   },
   updated() {
-    let dom = this.$refs.chats;
-    this.scrollToEnd(dom);
+    // TODO: スレッドのスクロール操作
   },
   methods: {
     scrollToEnd(dom) {
@@ -162,7 +163,6 @@ export default {
       // child: [],
       };
 
-// key をセット
       const key= process.env.KEY;
       const url = "/test2/messages"
       const cookies = new Cookies();
