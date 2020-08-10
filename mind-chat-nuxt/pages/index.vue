@@ -1,7 +1,11 @@
 <template>
 <div class="app-layout">
   <div class="side-bar">
-    test
+    <div class="user-name-input-layout">
+      <div class="user-name-title" > あなたのユーザ名 </div>
+      <textarea cols="10" rows="1" class="user-name-input" v-model="from_name"></textarea>
+    </div>
+    <div class="channel"></div>
   </div>
   <div id="Chat" class="main-contents" v-bind:class="{threadOpendisplay: thread_open}">
     <div class="two-container" v-bind:class="{threadOpen: thread_open}">
@@ -9,7 +13,7 @@
         <div class="containier">
           <div class="chat_container">
             <div v-if="messages">
-              <section class="card" v-for="(message, index) in messages">
+              <section class="card" v-for="(message, index) in messages"  v-if="message.parent==-1">
                 <div class="thumbnail">
                   <img src="">
                 </div>
@@ -18,7 +22,7 @@
                     <div class="user-name">
                       {{ message.from }}
                       <span @click="openThread(index)">→</span>
-                      <span @click="deleteMessage(index)">×</span>
+                      <!-- <span @click="deleteMessage(index)">×</span> -->
                     </div>
                   </div>
                   <div class="text">
@@ -55,6 +59,10 @@
     </div>
     <div class="thread-container" v-if="thread_open">
       <div class="chats-layout">
+        <div class="thread-header">
+          <div class="thread-title">Thread</div>
+          <span class="thread-exit" @click="closeThread(index)">×</span>
+        </div>
         <div class="containier">
           <div class="chat_container">
             <section class="card">
@@ -77,14 +85,34 @@
                 </div>
               </div>
             </section>
+            <section class="card" v-for="(message2, index) in messages" v-if="message2.parent==thread_messages.id">
+                <div class="thumbnail" v-if="message2.parent==thread_messages.id">
+                  <img src="">
+                </div>
+                <div class="message-container">
+                  <div class="user-name-layout">
+                    <div class="user-name">
+                      {{ message2.from }}
+                      <span @click="openThread(index)">→</span>
+                      <!-- <span @click="deleteMessage(index)">×</span> -->
+                    </div>
+                  </div>
+                  <div class="text">
+                    <p>{{ message2.content }}</p>
+                  </div>
+                  <div class="option" v-if="message2.child">
+                    <span class="setting" @click="openThread(index)">スレッドを表示する</span>
+                  </div>
+                </div>
+              </section>
           </div>
         </div>
       </div>
       <div class="input-layout">
         <div class="new-form">
           <div class="new-form-container">
-            <form @submit.prevent="addMessage">
-              <textarea v-model="newMessage"></textarea>
+            <form @submit.prevent="addThread">
+              <textarea v-model="newThread"></textarea>
               <button type="submit">
                 <svg width="100%" height="100%" viewBox="0 0 16 16" class="bi bi-caret-right-fill"
                   fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -112,6 +140,8 @@ export default {
       newMessage: "",
       thread_open: false,
       thread_messages: null,
+      newThread: "",
+      from_name: "me",
     };
   },
   async asyncData({ $axios }) {
@@ -175,10 +205,8 @@ export default {
     async addMessage() {
       let item = {
         to: "hogesan",// 一旦
-        from: "me",
+        from: this.from_name,
         content: this.newMessage
-      // 	 setting: false,
-      // child: [],
       };
 
       const key= process.env.KEY;
@@ -189,7 +217,7 @@ export default {
       const response = this.$axios
         .$post(url, item
         ).then(res => {
-          location.reload();
+          this.getNewMessage();
         })
         .catch(error => {
           console.log(response);
@@ -199,9 +227,38 @@ export default {
       this.newMessage = "";
       this.formModal = false;
     },
+    async addThread() {
+      let item = {
+        to: "hogesan",// 一旦
+        from: this.from_name,
+        content: this.newThread,
+        parent: this.thread_messages.id
+      };
+
+      const key= process.env.KEY;
+      const url = "/test2/messages"
+      const cookies = new Cookies();
+      cookies.set('key', key);
+
+      const response = this.$axios
+        .$post(url, item
+        ).then(res => {
+          this.getNewMessage();
+        })
+        .catch(error => {
+          console.log(response);
+          console.log(item)
+        })
+
+      this.newThread = "";
+      this.formModal = false;
+    },
     openThread: function(index) {
       this.thread_messages = this.messages[index];
       this.thread_open = true;
+    },
+    closeThread: function(index) {
+      this.thread_open = false;
     },
     deleteMessage: function(index) {
       this.messages.splice(index, 1);
@@ -274,15 +331,14 @@ html,body{
   background-color: var(--main-bg-color);
 }
 header{
-  z-index: 0;
-  width: 100%;
-  height: 70px;
-  color: var(--main-chara-color);
-  font-weight: 800;
-  font-family: 'Kaushan Script', cursive;
-  /* background-color: #2E2E2E;
-  border-bottom: solid 2px #707070; */
+	z-index: 0;
+	width: 100%;
+	height: 70px;
+	color: var(--main-chara-color);
+	font-weight: 800;
+	font-family: 'Kaushan Script', cursive;
 }
+
 header h1{
   line-height: 70px;
   text-align: center;
@@ -292,15 +348,16 @@ header h1{
   height: 100%;
   padding: 20px;
 }
+
 .main-contents .chats-layout{
   overflow: scroll;
   overflow-x: hidden;
   overflow-y: auto;
     height: 90%;
 }
+
 .input-layout{
-  height: 10%;
-  /* position: absolute; d */
+	height: 10%;
 }
 
 .container{
@@ -315,21 +372,25 @@ header h1{
     margin: 0;
   }
 }
-.noFire{
-  margin-top: 100px;
-  text-align: center;
-  color: var(--main-chara-color);
-}
-.card{
-  /* width: calc(100% - 40px);
-  margin: 30px auto 0;
-  padding: 25px 15px 15px;
-  box-sizing: border-box;
-  background-color: var(--chat-bg-color);
-  border: solid 1.5px var(--chat-border-color);
-  border-radius: 7px; */
+
+.thread-header{
+  height: 50px;
+  border-bottom: 1px solid gray;
   display: flex;
-    padding: 8px;
+}
+
+.thread-title{
+  margin-left: 10px;
+  font-size: 20px;
+}
+.thread-exit{
+  margin-left: 50%;
+  font-size: 20px;
+}
+
+.card{
+	display: flex;
+  padding: 8px;
 }
 .thumbnail{
   margin-right: 16px;
@@ -416,19 +477,14 @@ header h1{
 }
 
 .new-form form textarea{
-  width: 80%;
-  height: 100%;
-  /* padding: 15px; */
-  /* color: #fff; */
-  font-size: 18px;
-  /* background-color: #2e2e2e; */
-  box-sizing: border-box;
+	width: 80%;
+	height: 100%;
+	font-size: 18px;
+	box-sizing: border-box;
 }
 .new-form form button {
-  width: 70px;
-  position: fixed;
-  /* top: 350px; */
-  /* left: calc((100% - 70px)/2); */
+	width: 70px;
+	position: fixed;
 }
 .modalOpen{
   opacity: 1;
@@ -471,9 +527,24 @@ header h1{
 }
 
 .thread-container{
-  width: 35vw;
-  padding: 20px;
-  /* display: flex; */
+	width: 35vw;
+	padding: 20px;
+}
+
+.user-name-input-layout{
+  width: 100%;
+}
+
+.user-name-title{
+  color: white;
+  font-weight: 800;
+	font-family: 'Kaushan Script', cursive;
+  width: 100%;
+}
+
+.user-name-input{
+  width: 100%;
+  font-size: 16px;
 }
 
 </style>
