@@ -1,3 +1,4 @@
+const { KEY } = process.env;
 export default {
   /*
    ** Nuxt rendering mode
@@ -21,10 +22,10 @@ export default {
       {
         hid: "description",
         name: "description",
-        content: process.env.npm_package_description || ""
-      }
+        content: process.env.npm_package_description || "",
+      },
     ],
-    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }]
+    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
   },
   /*
    ** Global CSS
@@ -51,11 +52,11 @@ export default {
   modules: ["@nuxtjs/axios", "@nuxtjs/dotenv"],
   axios: {
     // axios でproxy が使えるようにする
-    proxy: true
+    proxy: true,
   },
   proxy: {
     // ターゲット先のURLを指定
-    "/test2": "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf"
+    "/test2": "http://db.denchu.cloud:5111/uiuxchat3287bivsgfbivf",
   },
   /*
    ** Build configuration
@@ -65,7 +66,10 @@ export default {
   watchers: {
     webpack: {
       aggregateTimeout: 300,
-      poll: 1000
-    }
-  }
+      poll: 1000,
+    },
+  },
+  env: {
+    KEY,
+  },
 };
