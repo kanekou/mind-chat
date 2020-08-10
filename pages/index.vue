@@ -86,6 +86,7 @@
               </div>
             </section>
             <section class="card" v-for="(message2, index) in messages" v-if="message2.parent==thread_messages.id">
+                <div class="branch-line"></div>
                 <div class="thumbnail" v-if="message2.parent==thread_messages.id">
                   <img src="">
                 </div>
@@ -300,7 +301,7 @@ html{
 }
 .side-bar{
   width: 300px;
-    background: #4a4141;
+    background: #2F0831;
     height: 100vh;
     padding: 20px;
 }
@@ -308,7 +309,7 @@ html{
 .main-contents{
   width: 100%;
   height: 100vh;
-  background: #f1f1f1;
+  background: #FFFFFF;
 }
 h1,h2{
   margin: 0;
@@ -391,6 +392,9 @@ header h1{
 .card{
 	display: flex;
   padding: 8px;
+}
+.card:hover{
+  background-color: #F1F1F1;
 }
 .thumbnail{
   margin-right: 16px;
@@ -545,6 +549,13 @@ header h1{
 .user-name-input{
   width: 100%;
   font-size: 16px;
+}
+
+.branch-line{
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 2px;
+  background-color: #c0c0c0;
 }
 
 </style>
