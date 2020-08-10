@@ -217,7 +217,7 @@ export default {
       const response = this.$axios
         .$post(url, item
         ).then(res => {
-          location.reload();
+          this.getNewMessage();
         })
         .catch(error => {
           console.log(response);
