@@ -2,10 +2,10 @@
 <div class="app-layout">
   <div class="side-bar">
     <div class="user-name-input-layout">
-      <div class="user-name-title" > あなたのユーザ名 </div> 
+      <div class="user-name-title" > あなたのユーザ名 </div>
       <textarea cols="10" rows="1" class="user-name-input" v-model="from_name"></textarea>
     </div>
-    <div class="channel"></div> 
+    <div class="channel"></div>
   </div>
   <div id="Chat" class="main-contents" v-bind:class="{threadOpendisplay: thread_open}">
     <div class="two-container" v-bind:class="{threadOpen: thread_open}">
@@ -243,7 +243,7 @@ export default {
       const response = this.$axios
         .$post(url, item
         ).then(res => {
-          location.reload();
+          this.getNewMessage();
         })
         .catch(error => {
           console.log(response);
