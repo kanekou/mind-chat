@@ -11,7 +11,7 @@
     <div class="two-container" v-bind:class="{threadOpen: thread_open}">
       <div ref="chats" class="chats-layout">
         <div class="containier">
-          <div class="chat_container">
+          <div id="target" class="chat_container">
             <div v-if="messages">
               <section class="card" v-for="(message, index) in messages"  v-if="message.parent==-1">
                 <div class="thumbnail">
@@ -126,8 +126,13 @@
         </div>
       </div>
     </div>
-  </div>
+      <input type="button" value="チャット部分画像表示" onClick="makeimage()">
+	    <h3>↓↓ここから画像↓↓<h3>
+	    <img src="" id="result" />
+	    <h3>↑↑ここまで画像↑↑</h3>
+      </div>
 </div>
+
 </template>
 
 <script>
@@ -266,6 +271,19 @@ export default {
     }
   }
 };
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+<script>
+function makeimage(){
+	html2canvas(document.getElementById("target"),{
+		onrendered: function(canvas){
+			//imgタグのsrcの中に、html2canvasがレンダリングした画像を指定する。
+			var imgData = canvas.toDataURL();
+			document.getElementById("result").src = imgData;
+		}
+	});
+}
 </script>
 
 <style scoped>
