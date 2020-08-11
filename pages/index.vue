@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <div class="thread-container" v-if="thread_open">
+    <div id="target" class="thread-container" v-if="thread_open">
       <div class="chats-layout">
         <div class="thread-header">
           <div class="thread-title">Thread</div>
@@ -162,8 +162,9 @@ export default {
   mounted() {
     this.$nextTick(function () {
       let ref = this.$refs.chats;
-      this.scrollToEnd(ref);
-    })
+			this.scrollToEnd(ref);
+			// this.capturecanvas();
+		})
   },
   created(){
     setInterval(() => {
@@ -174,6 +175,12 @@ export default {
     // TODO: スレッドのスクロール操作
   },
   methods: {
+		capturecanvas() {
+      html2canvas(document.body).then(function (canvas) {
+        var imgData = canvas.toDataURL()
+        document.getElementById('result').src = imgData
+      })
+    },
     async getNewMessage(){
       const url = "/test2/messages"
       let reqId = this.messages.slice(-1)[0].id+1;
