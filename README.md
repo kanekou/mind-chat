@@ -1,5 +1,12 @@
 # mind-chat-nuxt
 
+## set key
+make `.env` file at root directly
+- `.env`
+```
+KEY = XXXXXXXXXX
+```
+
 ## Build Setup
 
 ```bash
