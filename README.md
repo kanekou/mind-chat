@@ -1,7 +1,7 @@
 # mind-chat-nuxt
 
 ## Set Key
-make `.env` file at root directly
+Make `.env` file at root directly
 - `.env`
 ```
 KEY = XXXXXXXXXX
