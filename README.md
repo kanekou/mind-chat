@@ -1,6 +1,6 @@
 # mind-chat-nuxt
 
-## set key
+## Set Key
 make `.env` file at root directly
 - `.env`
 ```
