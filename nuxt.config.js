@@ -36,7 +36,7 @@ export default {
    ** https://nuxtjs.org/guide/plugins
    */
   // plugins: ["~/plugins/SetInterval"],
-  plugins: [],
+  plugins: ["~/plugins/vue-html2-canvas"],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
